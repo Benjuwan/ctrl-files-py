@@ -1,10 +1,10 @@
-import glob
 import sys
 import os
+import glob
 
 
 def _rename_file_act_alt(
-    target_files: str, numbering: str, replace_str: str, is_begin: bool = True
+    target_files: list[str], numbering: str, replace_str: str, is_begin: bool = True
 ) -> None:
     # ナンバリング有りver
     if len(numbering) > 0:
@@ -27,7 +27,7 @@ def _rename_file_act_alt(
 
 
 def _rename_file_act(
-    target_files: str,
+    target_files: list[str],
     numbering: str,
     replace_str: str,
     target_str: str | None = None,
@@ -67,25 +67,44 @@ def _rename_file_act(
         return
 
 
-def rename_files_sys():
+def rename_files_sys(target_files_dir: list[str] | None = None):
     """
     # 指定した位置（インデックス）の値を取得
     # sys.argv[0]  # プログラム名
     # sys.argv[1]  # 第一引数：モード（ all, part, add_begin, add_end ）
     """
+
+    # ----- main.py 経由の処理ルート
+    if target_files_dir is not None:
+        if len(target_files_dir) == 0:
+            sys.exit("処理対象フォルダまたはファイルが存在しないようです")
+
+        replace_str = input(
+            f"「{target_files_dir}」フォルダ内の全ファイル名を入力文字で置換："
+        )
+        target_str = input(
+            f"「{target_files_dir}」フォルダ内の全ファイル名の置換対象となる文字列を入力："
+        )
+        _rename_file_act(target_files_dir, "", replace_str, target_str)
+        return
+
+    # ----- rename_files_sys.py 単体実行の処理ルート
+    # 以下のコマンドライン引数の場合、入力文字に応じた処理を実行する
     com_lists = ["all", "part", "add_begin", "add_end"]
+    attention_com_lists = f"実行可能コマンドは{com_lists}です"
 
     print(sys.argv)
-    # コマンドライン引数が2つ未満または com_lists 内の文字列でない場合は早期終了
-    if len(sys.argv) < 2 or sys.argv[1] not in com_lists:
-        print(
-            "コマンドライン引数が2つ未満または所定コマンド（ all, part, add_begin, add_end ）が入力されていません"
-        )
+    # 入力したコマンドライン引数が1つ未満（※何も入力せずとも[0]にはファイル名が入る）または1つ以上の場合
+    if len(sys.argv) != 2 or len(sys.argv) > 2:
+        print(f"1つのコマンドライン引数を入力してください\n{attention_com_lists}")
         return
+
+    # com_lists 内の文字列でない場合
+    elif sys.argv[1] not in com_lists:
+        print(f"{sys.argv[1]} は実行コマンドに含まれていません\n{attention_com_lists}")
 
     mode = sys.argv[1]
     rename_files = glob.glob("../rename")
-    print(rename_files)
     if len(rename_files) == 0:
         print("renameフォルダが存在しないか、フォルダ内にデータが用意されていません")
         return
@@ -111,16 +130,5 @@ def rename_files_sys():
         _rename_file_act_alt(rename_files, numbering, add_end_str, is_begin=False)
 
 
-def rename_files():
-    rename_files_sys()
-
-    # 指定したパス（※ファイルやディレクトリの場所を指す文字列）にあるファイルの一覧を取得する
-    # 返り値はファイル一覧のリスト形式（イテラブル）となる
-    # 今回はサブディレクトリも処理対象（＝指定したディレクトリ全体が処理対象）とする
-    target_files_dir = glob.glob("../file", recursive=True)
-    if len(target_files_dir) == 0:
-        print("対象ファイルが存在しません")
-
-
 if __name__ == "__main__":
-    rename_files()
+    rename_files_sys()
