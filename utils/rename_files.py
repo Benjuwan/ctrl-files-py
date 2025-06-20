@@ -1,15 +1,27 @@
 import glob
+import os
 
 from rename_files_sys import rename_files_sys
 
 
 def rename_files() -> None:
-    # 指定したパス（※ファイルやディレクトリの場所を指す文字列）にあるファイルの一覧を取得する
-    # 返り値はファイル一覧のリスト形式（イテラブル）となる
-    # 今回はサブディレクトリも処理対象（＝指定したディレクトリ全体が処理対象）とする
-    target_files_dir = glob.glob("../file", recursive=True)
+    # （../file という）パス文字列として正しく認識してもらうために os.path.join で文字列結合する
+    file_dir = os.path.join("..", "file")
+    target_files_dir = glob.glob(
+        # ../file/*： fileフォルダ内の全ファイル（/*：ワイルドカード）指定というパス文字列
+        os.path.join(file_dir, "*"),
+        # サブディレクトリも処理対象（＝指定したディレクトリ全体が処理対象）
+        recursive=True,
+    )
     if len(target_files_dir) == 0:
-        print("`rename_files` | 対象ファイルが存在しません")
+        print(
+            f"`rename_files` | {file_dir}フォルダまたは当該フォルダ内にファイルが存在しません"
+        )
+
+        # ルートに file_dir フォルダが存在しない場合のみ作成
+        if os.path.exists(file_dir) is False:
+            os.mkdir(file_dir)
+
         return
 
     try:
