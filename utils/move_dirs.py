@@ -1,12 +1,21 @@
 import glob
-# import os
+import os
 # import shutil
 
 
-def move_dirs(dirname: str = "") -> None:
-    target_files_dir = glob.glob(f"{dirname}", recursive=True)
+def move_dirs(dirname: str = "rename") -> None:
+    # `../file/{dirname}`というパス文字列として正しく認識してもらうために os.path.join で文字列結合する
+    file_dir = os.path.join("..", "file", dirname)
+
+    target_files_dir = glob.glob(file_dir, recursive=True)
     if len(target_files_dir) == 0:
-        print(f"`rename_files` | 対象フォルダ「{dirname}」が存在しません")
+        print(f"`rename_files` | 処理対象フォルダ「{dirname}」が存在しません")
+
+        # ルートに file_dir フォルダが存在しない場合のみ作成
+        if os.path.exists(f"{file_dir}") is False:
+            # 再帰的にディレクトリを作成（※指定したフォルダ構成通りに作成してくれる）
+            os.makedirs(f"{file_dir}")
+
         return
 
     try:
