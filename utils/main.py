@@ -1,9 +1,14 @@
+from rename_files import rename_files
+from files_select import files_select
+from move_dirs import move_dirs
+
+
 def run() -> None:
     try:
-        entry_rename_target = input(
+        entry_replace_str = input(
             "1. リネーム前の対象文字列を入力\n例：ページ -> page の場合「ページ」と入力："
         )
-        entry_rename_src = input(
+        entry_target_str = input(
             "2. リネーム名を入力\n例：例：ページ -> page の場合「page」と入力："
         )
         entry_move_dir = input(
@@ -14,12 +19,12 @@ def run() -> None:
         )
 
         is_allow_rename = (
-            len(entry_rename_target) > 0 and isinstance(entry_rename_target, str)
-        ) and (len(entry_rename_src) > 0 and isinstance(entry_rename_src, str))
+            len(entry_replace_str) > 0 and isinstance(entry_replace_str, str)
+        ) and (len(entry_target_str) > 0 and isinstance(entry_target_str, str))
 
         if is_allow_rename is False:
             print(
-                f"--- リネーム処理「{entry_rename_target}」->「{entry_rename_src}」は必ず入力してください"
+                f"--- リネーム処理「{entry_replace_str}」->「{entry_target_str}」は必ず入力してください"
             )
             return
 
@@ -33,20 +38,28 @@ def run() -> None:
 
         if is_allow_all_feature:
             print(
-                f"--- 1.すべての処理（リネーム：{entry_rename_target} -> {entry_rename_src} + フォルダ移動：{entry_move_dir} + 指定したファイル：{entry_file_select}）"
+                f"--- 1.すべての処理（リネーム：{entry_replace_str} -> {entry_target_str} + フォルダ移動：{entry_move_dir} + 指定したファイル：{entry_file_select}）"
             )
+            rename_files(entry_replace_str, entry_target_str)
+            files_select(entry_file_select)
+            move_dirs(entry_move_dir)
         elif is_allow_rename and is_allow_move_dir:
             print(
-                f"--- 2.特定処理（リネーム：{entry_rename_target} -> {entry_rename_src} + フォルダ移動：{entry_move_dir}）"
+                f"--- 2.特定処理（リネーム：{entry_replace_str} -> {entry_target_str} + フォルダ移動：{entry_move_dir}）"
             )
+            rename_files(entry_replace_str, entry_target_str)
+            move_dirs(entry_move_dir)
         elif is_allow_rename and is_allow_file_select:
             print(
-                f"--- 3.特定処理（リネーム：{entry_rename_target} -> {entry_rename_src} + 指定したファイル：{entry_file_select}）"
+                f"--- 3.特定処理（リネーム：{entry_replace_str} -> {entry_target_str} + 指定したファイル：{entry_file_select}）"
             )
+            rename_files(entry_replace_str, entry_target_str)
+            files_select(entry_file_select)
         elif is_allow_rename:
             print(
-                f"--- 4.特定処理（リネーム：{entry_rename_target} -> {entry_rename_src}）"
+                f"--- 4.特定処理（リネーム：{entry_replace_str} -> {entry_target_str}）"
             )
+            rename_files(entry_replace_str, entry_target_str)
         else:
             print("5.リネーム名を入力してください")
 
