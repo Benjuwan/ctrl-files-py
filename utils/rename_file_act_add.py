@@ -32,22 +32,30 @@ def rename_file_act_add(
         # ナンバリング有りver
         if is_add_numbering:
             for i, file in enumerate(rename_files, 1):
+                # 置換対象文字を含んでいない場合はスキップ
+                if file.count(replace_str) == 0:
+                    continue
+
                 shutil.copy2(file, file + ".bak")
 
                 dir_name = os.path.dirname(file)
-                extends = file.split(".")[-1]
+                # os.path.splitext で確実に拡張子を取得する
+                extend = os.path.splitext(file)[1]
 
                 new_name = os.path.join(
                     dir_name,
-                    f"{i}-{replace_str}-{file}.{extends}"
+                    f"{i}-{replace_str}-{file}{extend}"
                     if numbering == "y"
-                    else f"{file}-{replace_str}-{i}.{extends}",
+                    else f"{file}-{replace_str}-{i}{extend}",
                 )
                 print(file, new_name)
                 os.rename(file, new_name)
             return  # 無用な後続処理を避けるため明示的に処理終了
 
         for file in rename_files:
+            if file.count(replace_str) == 0:
+                continue
+
             shutil.copy2(file, file + ".bak")
             adjust_filename = (
                 f"{replace_str}-{file}" if is_begin else f"{file}-{replace_str}"

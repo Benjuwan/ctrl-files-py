@@ -85,8 +85,8 @@ def rename_files_sys(
             rename_file_act_regular(target_files, numbering, replace_all_str)
 
         elif mode == "part":
-            replace_str = input("置換結果となる文字列：")
-            target_str = input("置換したいファイル名の文字列：")
+            replace_str = input("リネーム前の対象文字列を入力：")
+            target_str = input("リネーム名を入力：")
             rename_file_act_regular(target_files, numbering, replace_str, target_str)
 
         elif mode == "add_begin":
