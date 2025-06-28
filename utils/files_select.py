@@ -1,5 +1,6 @@
 import glob
 import os
+import sys
 
 
 def files_select(extends: str = "*") -> None:
@@ -19,10 +20,10 @@ def files_select(extends: str = "*") -> None:
     )
 
     if len(target_files) == 0:
-        print(
+        # sys.exit で全体の処理中断
+        sys.exit(
             f"`files_select` | ../fileフォルダまたは当該フォルダ内に「{extends}」拡張子を持つファイルが存在しません"
         )
-        return
 
     try:
         pass

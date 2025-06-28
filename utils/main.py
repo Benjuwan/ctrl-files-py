@@ -1,6 +1,6 @@
 from rename_files import rename_files
 from files_select import files_select
-from move_dirs import move_dirs
+from move_dirs import check_and_create_move_dir
 
 
 def run() -> None:
@@ -40,21 +40,21 @@ def run() -> None:
             print(
                 f"--- 1.すべての処理（リネーム：{entry_replace_str} -> {entry_target_str} + フォルダ移動：{entry_move_dir} + 指定したファイル：{entry_file_select}）"
             )
-            rename_files(entry_replace_str, entry_target_str)
+            check_and_create_move_dir(entry_move_dir)
             files_select(entry_file_select)
-            move_dirs(entry_move_dir)
+            rename_files(entry_replace_str, entry_target_str)
         elif is_allow_rename and is_allow_move_dir:
             print(
                 f"--- 2.特定処理（リネーム：{entry_replace_str} -> {entry_target_str} + フォルダ移動：{entry_move_dir}）"
             )
+            check_and_create_move_dir(entry_move_dir)
             rename_files(entry_replace_str, entry_target_str)
-            move_dirs(entry_move_dir)
         elif is_allow_rename and is_allow_file_select:
             print(
                 f"--- 3.特定処理（リネーム：{entry_replace_str} -> {entry_target_str} + 指定したファイル：{entry_file_select}）"
             )
-            rename_files(entry_replace_str, entry_target_str)
             files_select(entry_file_select)
+            rename_files(entry_replace_str, entry_target_str)
         elif is_allow_rename:
             print(
                 f"--- 4.特定処理（リネーム：{entry_replace_str} -> {entry_target_str}）"
