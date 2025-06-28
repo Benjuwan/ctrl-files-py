@@ -16,7 +16,7 @@ def rename_files_sys(
     sys.argv[0]  # プログラム名
     sys.argv[1]  # 第一引数：モード（ all, part, add_begin, add_end ）
     """
-    # ----- rename_files.py 経由の処理ルート
+    # ----- rename_files.py（main.py）経由の処理ルート（※部分置換処理）
     if rename_files_dir is not None:
         if len(rename_files_dir) == 0:
             sys.exit("処理対象フォルダまたはファイルが存在しないようです")
@@ -44,7 +44,6 @@ def rename_files_sys(
         # ※`../file/rename`というパス文字列として正しく認識してもらうために os.path.join で文字列結合
         file_dir = os.path.join("..", "file", "rename")
         target_files = glob.glob(file_dir)
-        print(target_files)
 
         # `../file/rename`フォルダが存在しない場合
         if len(target_files) == 0 and os.path.exists(f"{file_dir}") is False:
