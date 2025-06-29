@@ -7,12 +7,14 @@ from rename_files_sys import rename_files_sys
 def rename_files(entry_replace_str: str = "", entry_target_str: str = "") -> None:
     # （../file という）パス文字列として正しく認識してもらうために os.path.join で文字列結合する
     file_dir = os.path.join("..", "file")
+
     target_files = glob.glob(
         # ../file/*： fileフォルダ内の全ファイル（/*：ワイルドカード）指定というパス文字列
         os.path.join(file_dir, "*"),
         # サブディレクトリも処理対象（＝指定したディレクトリ全体が処理対象）
         recursive=True,
     )
+
     if len(target_files) == 0:
         print(
             f"`rename_files` | {file_dir}フォルダまたは当該フォルダ内にファイルが存在しません"

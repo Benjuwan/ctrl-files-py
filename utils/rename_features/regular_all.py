@@ -1,0 +1,93 @@
+import shutil
+import os
+
+from move_dirs import move_dir
+
+
+# 同一拡張子のファイルが無いかチェックするプライベートメソッド
+def _check_duplicated_extends(filelist: list[str]) -> bool:
+    extends = []
+    duplicated_extends_count = 0
+
+    for file in filelist:
+        # os.path.splitext で確実に拡張子を取得する
+        extend = os.path.splitext(file)[1]
+        extends.append(extend)
+
+        for ext in extends:
+            if file.count(ext):
+                duplicated_extends_count += 1
+
+    if duplicated_extends_count > 0:
+        return True
+
+    return False
+
+
+# all：ナンバリング有りver
+def regular_all_numbering(
+    numbering: str | None = None,
+    target_file_dir: list[str] | None = None,
+    rename_files: list[str] | None = None,
+    replace_str: str | None = None,
+    has_multi_dirs_filedir: bool | None = None,
+) -> None:
+    if rename_files is None:
+        return
+
+    for i, file in enumerate(rename_files, 1):
+        shutil.copy2(file, file + ".bak")
+
+        dir_name = os.path.dirname(file)
+        extend = os.path.splitext(file)[1]
+
+        new_name = os.path.join(
+            dir_name,
+            f"{i}-{replace_str}{extend}"
+            if numbering == "y"
+            else f"{replace_str}-{i}{extend}",
+        )
+
+        print(f"{file} -> {new_name}")
+        os.rename(file, new_name)
+
+        # フォルダ移動処理が有効の場合は以下の処理に進む
+        if has_multi_dirs_filedir:
+            move_dir(target_file_dir)
+
+
+# all：ナンバリング無しver
+def regular_all(
+    target_file_dir: list[str] | None = None,
+    rename_files: list[str] | None = None,
+    replace_str: str | None = None,
+    has_multi_dirs_filedir: bool | None = None,
+) -> None:
+    if rename_files is None:
+        return
+
+    for file in rename_files:
+        # 同一拡張子のファイルが無いかチェック
+        is_check_duplicated_extends = _check_duplicated_extends(rename_files)
+        if is_check_duplicated_extends:
+            print("同じ拡張子のファイルがあります。重複ファイルは作成不可")
+            return
+
+        shutil.copy2(file, file + ".bak")
+
+        dir_name = os.path.dirname(file)
+        extend = os.path.splitext(file)[1]
+
+        new_name = os.path.join(dir_name, f"{replace_str}{extend}")
+
+        print(f"{file} -> {new_name}")
+        os.rename(file, new_name)
+
+        # フォルダ移動処理が有効の場合は以下の処理に進む
+        if has_multi_dirs_filedir:
+            move_dir(target_file_dir)
+
+
+if __name__ == "__main__":
+    regular_all_numbering()
+    regular_all()

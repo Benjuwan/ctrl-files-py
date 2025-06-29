@@ -69,4 +69,4 @@ def run() -> None:
 
 
 run()
-print("run 終了.")
+print("すべての処理が完了しました.")
