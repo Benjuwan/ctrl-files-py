@@ -28,18 +28,24 @@ def check_and_create_move_dir(dirname: str = "rename") -> None:
         return
 
 
-def move_dir(
-    target_file_dir: list[str] | None = None, rename_files: list[str] | None = None
-):
-    if target_file_dir is None or rename_files is None:
+def move_dir(target_file_dir: list[str] | None = None):
+    if target_file_dir is None:
         return
 
     try:
-        move_target_dir = target_file_dir[1]
-        src_file = rename_files
+        # 移動先フォルダパス（target_file_dir[0]）
+        move_target_dir = target_file_dir[0]
+
+        # 移動元フォルダパス（file/rename）を抽出
+        target_rename_dir = list(
+            filter(lambda dir: dir.count("rename"), target_file_dir)
+        )
+
+        # 移動元フォルダパス（file/rename）から各ファイルデータパス（イテラブル）を取得
+        src_file = glob.glob(os.path.join(*target_rename_dir, "*"))
 
         for file in src_file:
-            # shutil.move(file, move_target_dir)
+            # ファイルの移動（メタデータを含む完全コピー）
             shutil.copy2(file, move_target_dir)
 
     except Exception as e:

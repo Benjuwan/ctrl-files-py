@@ -1,18 +1,16 @@
 import glob
+import shutil
 import os
 
-from rename_features.regular_part import regular_part_numbering
-from rename_features.regular_part import regular_part
-from rename_features.regular_all import regular_all_numbering
-from rename_features.regular_all import regular_all
+from move_dirs import move_dir
 
 
-# モード：all, part ルート時におけるリネーム処理
-def rename_file_act_regular(
+# モード：add_ 系統ルート時におけるリネーム処理
+def rename_file_act_add(
     target_file_dir: list[str] | None = None,
     numbering: str = "",
     replace_str: str = "",
-    target_str: str | None = None,
+    is_begin: bool = True,
 ) -> None:
     if target_file_dir is None:
         print(
@@ -24,14 +22,7 @@ def rename_file_act_regular(
     has_multi_dirs_filedir = len(target_file_dir) > 1
 
     # file ディレクトリ配下のフォルダから rename（処理対象ディレクトリ）を取得
-    target_rename_dir = list(
-        # filter(式 {※以下の lambda関数}, イテラブル)
-        filter(
-            # lambda 引数: 式
-            lambda dir: dir.count("rename"),
-            target_file_dir,
-        )
-    )
+    target_rename_dir = list(filter(lambda dir: dir.count("rename"), target_file_dir))
 
     # 処理対象ディレクトリ内の全てのファイルリスト（以下の内包表記からうまれるイテラブル）
     rename_files = [
@@ -61,52 +52,59 @@ def rename_file_act_regular(
         )
 
     try:
-        # part：ナンバリング有りver
-        if is_add_numbering and target_str is not None:
-            regular_part_numbering(
-                numbering,
-                target_str,
-                target_file_dir,
-                rename_files,
-                replace_str,
-                has_multi_dirs_filedir,
-            )
-            return  # 以降の処理を実行させないように処理終了
-
-        # part：ナンバリング無しver
-        if target_str is not None:
-            regular_part(
-                target_str,
-                target_file_dir,
-                rename_files,
-                replace_str,
-                has_multi_dirs_filedir,
-            )
-            return
-
-        # all：ナンバリング有りver
+        # ナンバリング有りver
         if is_add_numbering:
-            regular_all_numbering(
-                numbering,
-                target_file_dir,
-                rename_files,
-                replace_str,
-                has_multi_dirs_filedir,
-            )
-            return
+            for i, file in enumerate(rename_files, 1):
+                shutil.copy2(file, file + ".bak")
 
-        # all：ナンバリング無しver
-        regular_all(
-            target_file_dir,
-            rename_files,
-            replace_str,
-            has_multi_dirs_filedir,
-        )
+                dir_name = os.path.dirname(file)
+
+                # os.path.splitext と os.path.basename で確実にファイル名と拡張子を取得する
+                target_filename = os.path.basename(os.path.splitext(file)[0])
+                extend = os.path.splitext(file)[1]
+
+                new_name = os.path.join(
+                    dir_name,
+                    f"{i}-{replace_str}-{target_filename}{extend}"
+                    if numbering == "y"
+                    else f"{target_filename}-{replace_str}-{i}{extend}",
+                )
+                print(f"{file} -> {new_name}")
+                os.rename(file, new_name)
+
+                # フォルダ移動処理が有効の場合は以下の処理に進む
+                if has_multi_dirs_filedir:
+                    move_dir(target_file_dir)
+
+            return  # 無用な後続処理を避けるため明示的に処理終了
+
+        # ナンバリング無しver
+        for file in rename_files:
+            shutil.copy2(file, file + ".bak")
+
+            dir_name = os.path.dirname(file)
+            target_filename = os.path.basename(os.path.splitext(file)[0])
+            extend = os.path.splitext(file)[1]
+
+            new_name = os.path.join(
+                dir_name,
+                f"{replace_str}-{target_filename}{extend}"
+                if is_begin
+                else f"{target_filename}-{replace_str}{extend}",
+            )
+            print(f"{file} -> {new_name}")
+            os.rename(file, new_name)
+
+            # フォルダ移動処理が有効の場合は以下の処理に進む
+            if has_multi_dirs_filedir:
+                move_dir(target_file_dir)
+
+        return
 
     except Exception as e:
-        print(f"ファイル名の置換処理実行エラー | {e}")
+        print(f"ファイル名の前後に文字列を追加する処理実行エラー | {e}")
         return
 
 
 if __name__ == "__main__":
-    rename_file_act_regular()
+    rename_file_act_add()
