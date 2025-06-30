@@ -28,13 +28,25 @@ def check_and_create_move_dir(dirname: str = "rename") -> None:
         return
 
 
-def move_dir(target_file_dir: list[str] | None = None):
+def move_dir(
+    target_file_dir: list[str] | None = None, replace_result_str: str | None = None
+):
     if target_file_dir is None:
         return
 
     try:
-        # 移動先フォルダパス（target_file_dir[0]）
-        move_target_dir = target_file_dir[0]
+        # 移動先フォルダパス（rename以外の各フォルダリスト）
+        move_target_dir = list(
+            filter(lambda dir: dir.count("rename") == 0, target_file_dir)
+        )
+
+        # Notice： （React でいう props バケツリレー的な感じで）main.py からここまで entry_move_dir を渡してくればフィルター処理で入力フォルダを処理対象にできるが、保守性と可読性が低下するので以下のエラーハンドリングで対処
+        if len(move_target_dir) > 2:
+            print(f"""
+fileフォルダ内に現在、処理対象候補フォルダが「 {len(move_target_dir)}つ」あります
+fileフォルダ内は、2つ（rename + 任意のフォルダ）までにしてください
+今回は先頭フォルダ「{move_target_dir[0]}」に対象ファイルをコピーします
+""")
 
         # 移動元フォルダパス（file/rename）を抽出
         target_rename_dir = list(
@@ -45,8 +57,13 @@ def move_dir(target_file_dir: list[str] | None = None):
         src_file = glob.glob(os.path.join(*target_rename_dir, "*"))
 
         for file in src_file:
+            # ※部分置換処理の場合のみ
+            # 置換対象文字が存在して、それを含んでいない場合はスキップ
+            if replace_result_str is not None and file.count(replace_result_str) == 0:
+                continue
+
             # ファイルの移動（メタデータを含む完全コピー）
-            shutil.copy2(file, move_target_dir)
+            shutil.copy2(file, move_target_dir[0])
 
     except Exception as e:
         print(f"フォルダ移動の処理実行エラー | {e}")

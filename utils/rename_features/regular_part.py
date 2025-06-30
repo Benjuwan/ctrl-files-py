@@ -1,3 +1,4 @@
+import unicodedata  # Unicodeデータベースへのアクセスを提供
 import shutil
 import os
 
@@ -17,18 +18,23 @@ def regular_part_numbering(
         return
 
     for i, file in enumerate(rename_files, 1):
+        # 文字列を正規化（NFKCで合成済み文字として扱う）
+        normalized_path = unicodedata.normalize("NFKC", file)
+
         # 置換対象文字を含んでいない場合はスキップ
-        if file.count(replace_str) == 0:
-            print(f"{i} --- {file}は置換対象外です")
+        if normalized_path.count(replace_str) == 0:
+            print(f"{i} --- {normalized_path}は置換対象外です")
             continue
 
         # バックアップを作成（.bak：バックアップファイルを意味する拡張子）
-        shutil.copy2(file, file + ".bak")
+        shutil.copy2(normalized_path, normalized_path + ".bak")
 
         # 文字列置換
         target_replace_str = replace_str
         replace_result_str = target_str
-        adjust_filename = file.replace(target_replace_str, replace_result_str)
+        adjust_filename = normalized_path.replace(
+            target_replace_str, replace_result_str
+        )
 
         # ファイル名とディレクトリを分離
         dir_name = os.path.dirname(adjust_filename)
@@ -45,12 +51,12 @@ def regular_part_numbering(
             else f"{name_without_ext}-{i}{extend}",
         )
 
-        print(f"{file} -> {new_name}")
-        os.rename(file, new_name)
+        print(f"{normalized_path} -> {new_name}")
+        os.rename(normalized_path, new_name)
 
         # フォルダ移動処理が有効の場合は以下の処理に進む
         if has_multi_dirs_filedir:
-            move_dir(target_file_dir)
+            move_dir(target_file_dir, replace_result_str)
 
 
 # part：ナンバリング無しver
@@ -66,21 +72,25 @@ def regular_part(
 
     if target_str is not None:
         for file in rename_files:
-            if file.count(replace_str) == 0:
+            normalized_path = unicodedata.normalize("NFKC", file)
+
+            if normalized_path.count(replace_str) == 0:
                 continue
 
-            shutil.copy2(file, file + ".bak")
+            shutil.copy2(normalized_path, normalized_path + ".bak")
 
             target_replace_str = replace_str
             replace_result_str = target_str
-            adjust_filename = file.replace(target_replace_str, replace_result_str)
+            adjust_filename = normalized_path.replace(
+                target_replace_str, replace_result_str
+            )
 
-            print(f"{file} -> {adjust_filename}")
-            os.rename(file, adjust_filename)
+            print(f"{normalized_path} -> {adjust_filename}")
+            os.rename(normalized_path, adjust_filename)
 
             # フォルダ移動処理が有効の場合は以下の処理に進む
             if has_multi_dirs_filedir:
-                move_dir(target_file_dir)
+                move_dir(target_file_dir, replace_result_str)
 
 
 if __name__ == "__main__":

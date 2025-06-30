@@ -1,3 +1,4 @@
+import unicodedata  # Unicodeデータベースへのアクセスを提供
 import shutil
 import os
 
@@ -10,12 +11,15 @@ def _check_duplicated_extends(filelist: list[str]) -> bool:
     duplicated_extends_count = 0
 
     for file in filelist:
+        # 文字列を正規化（NFKCで合成済み文字として扱う）
+        normalized_path = unicodedata.normalize("NFKC", file)
+
         # os.path.splitext で確実に拡張子を取得する
-        extend = os.path.splitext(file)[1]
+        extend = os.path.splitext(normalized_path)[1]
         extends.append(extend)
 
         for ext in extends:
-            if file.count(ext):
+            if normalized_path.count(ext):
                 duplicated_extends_count += 1
 
     if duplicated_extends_count > 0:
@@ -36,10 +40,12 @@ def regular_all_numbering(
         return
 
     for i, file in enumerate(rename_files, 1):
-        shutil.copy2(file, file + ".bak")
+        normalized_path = unicodedata.normalize("NFKC", file)
 
-        dir_name = os.path.dirname(file)
-        extend = os.path.splitext(file)[1]
+        shutil.copy2(normalized_path, normalized_path + ".bak")
+
+        dir_name = os.path.dirname(normalized_path)
+        extend = os.path.splitext(normalized_path)[1]
 
         new_name = os.path.join(
             dir_name,
@@ -48,8 +54,8 @@ def regular_all_numbering(
             else f"{replace_str}-{i}{extend}",
         )
 
-        print(f"{file} -> {new_name}")
-        os.rename(file, new_name)
+        print(f"{normalized_path} -> {new_name}")
+        os.rename(normalized_path, new_name)
 
         # フォルダ移動処理が有効の場合は以下の処理に進む
         if has_multi_dirs_filedir:
@@ -67,21 +73,23 @@ def regular_all(
         return
 
     for file in rename_files:
+        normalized_path = unicodedata.normalize("NFKC", file)
+
         # 同一拡張子のファイルが無いかチェック
         is_check_duplicated_extends = _check_duplicated_extends(rename_files)
         if is_check_duplicated_extends:
             print("同じ拡張子のファイルがあります。重複ファイルは作成不可")
             return
 
-        shutil.copy2(file, file + ".bak")
+        shutil.copy2(normalized_path, normalized_path + ".bak")
 
-        dir_name = os.path.dirname(file)
-        extend = os.path.splitext(file)[1]
+        dir_name = os.path.dirname(normalized_path)
+        extend = os.path.splitext(normalized_path)[1]
 
         new_name = os.path.join(dir_name, f"{replace_str}{extend}")
 
-        print(f"{file} -> {new_name}")
-        os.rename(file, new_name)
+        print(f"{normalized_path} -> {new_name}")
+        os.rename(normalized_path, new_name)
 
         # フォルダ移動処理が有効の場合は以下の処理に進む
         if has_multi_dirs_filedir:
