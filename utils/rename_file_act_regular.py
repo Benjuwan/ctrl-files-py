@@ -1,5 +1,6 @@
 import glob
 import os
+import sys
 
 from rename_features.regular_part import regular_part_numbering
 from rename_features.regular_part import regular_part
@@ -56,8 +57,8 @@ def rename_file_act_regular(
     is_add_numbering = len(numbering) > 0 and is_check_correct_numbering_code
 
     if len(numbering) > 0 and is_check_correct_numbering_code is False:
-        print(
-            f"\n処理受付可能なコードは「y」または「n」のみです\n入力されたコードは「{numbering}」なので無視されます\n"
+        sys.exit(
+            f"\n処理受付可能なコードは「y」または「n」のみです\n入力されたコードは「{numbering}」なので処理を中断します\n"
         )
 
     try:

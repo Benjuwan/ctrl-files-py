@@ -1,3 +1,4 @@
+import unicodedata  # Unicodeデータベースへのアクセスを提供
 import shutil
 import os
 
@@ -16,13 +17,16 @@ def add_begin_end_numbering(
         return
 
     for i, file in enumerate(rename_files, 1):
-        shutil.copy2(file, file + ".bak")
+        # 文字列を正規化（NFKCで合成済み文字として扱う）
+        normalized_path = unicodedata.normalize("NFKC", file)
 
-        dir_name = os.path.dirname(file)
+        shutil.copy2(normalized_path, normalized_path + ".bak")
+
+        dir_name = os.path.dirname(normalized_path)
 
         # os.path.splitext と os.path.basename で確実にファイル名と拡張子を取得する
-        target_filename = os.path.basename(os.path.splitext(file)[0])
-        extend = os.path.splitext(file)[1]
+        target_filename = os.path.basename(os.path.splitext(normalized_path)[0])
+        extend = os.path.splitext(normalized_path)[1]
 
         new_name = os.path.join(
             dir_name,
@@ -30,8 +34,8 @@ def add_begin_end_numbering(
             if numbering == "y"
             else f"{target_filename}-{replace_str}-{i}{extend}",
         )
-        print(f"{file} -> {new_name}")
-        os.rename(file, new_name)
+        print(f"{normalized_path} -> {new_name}")
+        os.rename(normalized_path, new_name)
 
         # フォルダ移動処理が有効の場合は以下の処理に進む
         if has_multi_dirs_filedir:
@@ -50,11 +54,13 @@ def add_begin_end(
         return
 
     for file in rename_files:
-        shutil.copy2(file, file + ".bak")
+        normalized_path = unicodedata.normalize("NFKC", file)
 
-        dir_name = os.path.dirname(file)
-        target_filename = os.path.basename(os.path.splitext(file)[0])
-        extend = os.path.splitext(file)[1]
+        shutil.copy2(normalized_path, normalized_path + ".bak")
+
+        dir_name = os.path.dirname(normalized_path)
+        target_filename = os.path.basename(os.path.splitext(normalized_path)[0])
+        extend = os.path.splitext(normalized_path)[1]
 
         new_name = os.path.join(
             dir_name,
@@ -62,8 +68,8 @@ def add_begin_end(
             if is_begin
             else f"{target_filename}-{replace_str}{extend}",
         )
-        print(f"{file} -> {new_name}")
-        os.rename(file, new_name)
+        print(f"{normalized_path} -> {new_name}")
+        os.rename(normalized_path, new_name)
 
         # フォルダ移動処理が有効の場合は以下の処理に進む
         if has_multi_dirs_filedir:

@@ -1,6 +1,6 @@
 import glob
 import os
-
+import sys
 
 from rename_features.add_begin_end import add_begin_end_numbering
 from rename_features.add_begin_end import add_begin_end
@@ -43,8 +43,8 @@ def rename_file_act_add(
     is_add_numbering = len(numbering) > 0 and is_check_correct_numbering_code
 
     if len(numbering) > 0 and is_check_correct_numbering_code is False:
-        print(
-            f"\n処理受付可能なコードは「y」または「n」のみです\n入力されたコードは「{numbering}」なので無視されます\n"
+        sys.exit(
+            f"\n処理受付可能なコードは「y」または「n」のみです\n入力されたコードは「{numbering}」なので処理を中断します\n"
         )
 
     try:
