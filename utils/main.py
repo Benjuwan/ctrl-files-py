@@ -1,61 +1,63 @@
+import sys
+
+from entry_validation import input_validation
 from rename_files import rename_files
-from files_select import files_select
-from move_dirs import check_and_create_move_dir
 
 
 def run() -> None:
     try:
-        entry_replace_str = input("1. リネーム前の対象文字列を入力：")
-        entry_target_str = input("2. リネーム名を入力：")
-        entry_move_dir = input(
-            "3. （任意）移動先フォルダを入力 ---\n処理不要の場合は enterキーを押下："
-        )
-        entry_file_select = input(
-            "4. （任意）処理対象ファイルの拡張子を入力 ---\n処理不要の場合は enterキーを押下："
-        )
+        part_mode = input("ファイル名の部分置換処理をスタート（y/n で入力）：")
+        input_validation(part_mode)
 
-        is_allow_rename = (
-            len(entry_replace_str) > 0 and isinstance(entry_replace_str, str)
-        ) and (len(entry_target_str) > 0 and isinstance(entry_target_str, str))
+        if part_mode == "n":
+            sys.exit(
+                """
+ファイル名の全置換や部分置換、ファイル名の先頭または末尾へ特定文字列を追加したい場合
+`utils/rename_files_sys.py`を実行してください。
+実行コマンドは以下です。
 
-        if is_allow_rename is False:
-            print(
-                f"--- リネーム処理「{entry_replace_str}」->「{entry_target_str}」は必ず入力してください"
+```
+# utils ディレクトリに移動（`cd utils`）して
+python rename_files_sys.py <コマンド>
+
+# mac の場合
+# python3 rename_files_sys.py <コマンド>
+```
+
+※コマンドリストは以下です
+- all：ファイル名の全置換
+- part：ファイル名の部分置換（`ページ` -> `page`）
+- add_begin：ファイル名の「先頭」に指定した文字列を追加
+- add_end：ファイル名の「末尾」に指定した文字列を追加
+"""
             )
-            return
 
-        is_allow_move_dir = len(entry_move_dir) > 0 and isinstance(entry_move_dir, str)
-        is_allow_file_select = len(entry_file_select) > 0 and isinstance(
-            entry_file_select, str
+        apply_dir_move = input("フォルダ移動を行いますか？（y/n で入力）：")
+        input_validation(apply_dir_move)
+        is_dir_move: bool = apply_dir_move == "y"
+
+        apply_file_select = input(
+            "ファイルを選択（※拡張子指定）しますか？（y/n で入力）："
         )
-        is_allow_all_feature = (
-            is_allow_rename and is_allow_move_dir and is_allow_file_select
-        )
+        input_validation(apply_file_select)
+        is_file_select: bool = apply_file_select == "y"
 
-        if is_allow_all_feature:
-            print(
-                f"--- 1.すべての処理（リネーム：{entry_replace_str} -> {entry_target_str} + フォルダ移動：{entry_move_dir} + 指定したファイル：{entry_file_select}）"
-            )
-            check_and_create_move_dir(entry_move_dir)
-            files_select(entry_file_select, entry_replace_str)
-        elif is_allow_rename and is_allow_move_dir:
-            print(
-                f"--- 2.特定処理（リネーム：{entry_replace_str} -> {entry_target_str} + フォルダ移動：{entry_move_dir}）"
-            )
-            check_and_create_move_dir(entry_move_dir)
-            rename_files(entry_replace_str, entry_target_str)
-        elif is_allow_rename and is_allow_file_select:
-            print(
-                f"--- 3.特定処理（リネーム：{entry_replace_str} -> {entry_target_str} + 指定したファイル：{entry_file_select}）"
-            )
-            files_select(entry_file_select, entry_replace_str)
-        elif is_allow_rename:
-            print(
-                f"--- 4.特定処理（リネーム：{entry_replace_str} -> {entry_target_str}）"
-            )
-            rename_files(entry_replace_str, entry_target_str)
+        is_dirmove_fileselect: bool = is_dir_move and is_file_select
+
+        if is_dirmove_fileselect:
+            print("モード：フォルダ移動 + ファイル選択 + リネーム")
+            rename_files("all")
+
+        elif is_dir_move:
+            print("モード：フォルダ移動 + リネーム")
+            rename_files("dir_move")
+
+        elif is_file_select:
+            print("モード：ファイル選択 + リネーム")
+            rename_files("files_select")
         else:
-            print("5.リネーム名を入力してください")
+            print("モード：リネーム")
+            rename_files()
 
     except Exception as e:
         print(f"コアモジュール main.py での処理実行エラー | {e}")

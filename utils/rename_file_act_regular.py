@@ -2,6 +2,7 @@ import glob
 import os
 import sys
 
+# rename_features. からの相対パスでないと ModuleNotFoundError が発生する
 from rename_features.regular_part import regular_part_numbering
 from rename_features.regular_part import regular_part
 from rename_features.regular_all import regular_all_numbering
@@ -14,6 +15,7 @@ def rename_file_act_regular(
     numbering: str = "",
     replace_str: str = "",
     target_str: str | None = None,
+    mode: str = "",
 ) -> None:
     if target_file_dir is None:
         print(
@@ -21,16 +23,21 @@ def rename_file_act_regular(
         )
         return
 
-    # file ディレクトリ配下に複数のフォルダがあるかどうか判定するフラグ
-    has_multi_dirs_filedir = len(target_file_dir) > 1
+    # フォルダ移動処理の場合は`../file/rename`ディレクトリパスとイテラブルを用意
+    is_mode_dir_move: bool = mode == "dir_move"
+    if is_mode_dir_move:
+        dir_move_rename_dir_path = os.path.join("../", "file", "rename")
+        dir_move_rename_dir = glob.glob(dir_move_rename_dir_path, recursive=True)
 
     # file ディレクトリ配下のフォルダから rename（処理対象ディレクトリ）を取得
     target_rename_dir = list(
-        # filter(式 {※以下の lambda関数}, イテラブル)
+        # filter(関数, イテラブル)
         filter(
             # lambda 引数: 式
             lambda dir: dir.count("rename"),
-            target_file_dir,
+            # フォルダ移動処理の場合は dir_move_rename_dir （`../file/rename`イテラブル）を指定
+            # このルートの場合 target_file_dir には移動先フォルダ名が入っているので上書きはNG
+            dir_move_rename_dir if is_mode_dir_move else target_file_dir,
         )
     )
 
@@ -43,6 +50,10 @@ def rename_file_act_regular(
         # isfile：対象がファイルかどうかを判定（ディレクトリを除外してファイルのみを抽出）
         if os.path.isfile(f)
     ]
+
+    # ファイル選択処理の場合はそのまま target_rename_dir（拡張子でのフィルター済みイテラブル）を処理対象にする
+    if mode == "files_select":
+        rename_files = target_rename_dir
 
     if len(rename_files) == 0:
         print(f"{target_rename_dir}内のファイルは現在「{len(rename_files)}」件です")
@@ -70,7 +81,7 @@ def rename_file_act_regular(
                 target_file_dir,
                 rename_files,
                 replace_str,
-                has_multi_dirs_filedir,
+                is_mode_dir_move,
             )
             return  # 以降の処理を実行させないように処理終了
 
@@ -81,9 +92,9 @@ def rename_file_act_regular(
                 target_file_dir,
                 rename_files,
                 replace_str,
-                has_multi_dirs_filedir,
+                is_mode_dir_move,
             )
-            return
+            return  # 以降の処理を実行させないように処理終了
 
         # all：ナンバリング有りver
         if is_add_numbering:
@@ -92,16 +103,16 @@ def rename_file_act_regular(
                 target_file_dir,
                 rename_files,
                 replace_str,
-                has_multi_dirs_filedir,
+                is_mode_dir_move,
             )
-            return
+            return  # 以降の処理を実行させないように処理終了
 
         # all：ナンバリング無しver
         regular_all(
             target_file_dir,
             rename_files,
             replace_str,
-            has_multi_dirs_filedir,
+            is_mode_dir_move,
         )
 
     except Exception as e:

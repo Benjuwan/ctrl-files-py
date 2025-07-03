@@ -2,6 +2,7 @@ import glob
 import os
 import sys
 
+# rename_features. からの相対パスでないと ModuleNotFoundError が発生する
 from rename_features.add_begin_end import add_begin_end_numbering
 from rename_features.add_begin_end import add_begin_end
 
@@ -12,15 +13,13 @@ def rename_file_act_add(
     numbering: str = "",
     replace_str: str = "",
     is_begin: bool = True,
+    mode: str = "",
 ) -> None:
     if target_file_dir is None:
         print(
             "処理対象フォルダが指定されていないようです\n処理する場合は rename_files_sys.py を通じて実行してください "
         )
         return
-
-    # file ディレクトリ配下に複数のフォルダがあるかどうか判定するフラグ
-    has_multi_dirs_filedir = len(target_file_dir) > 1
 
     # file ディレクトリ配下のフォルダから rename（処理対象ディレクトリ）を取得
     target_rename_dir = list(filter(lambda dir: dir.count("rename"), target_file_dir))
@@ -29,6 +28,13 @@ def rename_file_act_add(
     rename_files = [
         f for f in glob.glob(os.path.join(*target_rename_dir, "*")) if os.path.isfile(f)
     ]
+
+    # ファイル選択処理の場合はそのまま target_rename_dir（拡張子でのフィルター済みイテラブル）を処理対象にする
+    if mode == "files_select":
+        rename_files = target_rename_dir
+
+    # フォルダ移動処理を通知するためのフラグを用意
+    is_mode_dir_move: bool = mode == "dir_move"
 
     if len(rename_files) == 0:
         print(f"{target_rename_dir}内のファイルは現在「{len(rename_files)}」件です")
@@ -55,7 +61,7 @@ def rename_file_act_add(
                 target_file_dir,
                 rename_files,
                 replace_str,
-                has_multi_dirs_filedir,
+                is_mode_dir_move,
             )
             return
 
@@ -65,7 +71,7 @@ def rename_file_act_add(
             rename_files,
             replace_str,
             is_begin,
-            has_multi_dirs_filedir,
+            is_mode_dir_move,
         )
 
     except Exception as e:
