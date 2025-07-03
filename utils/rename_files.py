@@ -1,10 +1,19 @@
 import glob
 import os
 
-from rename_files_sys import rename_files_sys
+from entry_validation import check_entry_count
+from check_and_create_move_dir import check_and_create_move_dir
+from files_select import files_select
+from rename_file_act_regular import rename_file_act_regular
 
 
-def rename_files(entry_replace_str: str = "", entry_target_str: str = "") -> None:
+def rename_files(mode: str = "") -> None:
+    entry_replace_str = input("1. リネーム前の対象文字列を入力：")
+    check_entry_count("リネーム前の対象文字列", entry_replace_str)
+
+    entry_target_str = input("2. リネーム名を入力：")
+    check_entry_count("リネーム名", entry_target_str)
+
     # （../file という）パス文字列として正しく認識してもらうために os.path.join で文字列結合する
     file_dir = os.path.join("..", "file")
 
@@ -27,7 +36,27 @@ def rename_files(entry_replace_str: str = "", entry_target_str: str = "") -> Non
         return
 
     try:
-        rename_files_sys(target_files, entry_replace_str, entry_target_str)
+        if mode == "all":
+            check_and_create_move_dir(entry_replace_str, entry_target_str, mode)
+            files_select(entry_replace_str, entry_target_str, mode)
+            rename_file_act_regular(
+                target_files, "", entry_replace_str, entry_target_str
+            )
+        elif mode == "dir_move":
+            check_and_create_move_dir(entry_replace_str, entry_target_str, mode)
+            rename_file_act_regular(
+                target_files, "", entry_replace_str, entry_target_str
+            )
+        elif mode == "files_select":
+            files_select(entry_replace_str, entry_target_str, mode)
+            rename_file_act_regular(
+                target_files, "", entry_replace_str, entry_target_str
+            )
+        else:
+            # entry_target_str を渡して、部分置換モードで処理を進める
+            rename_file_act_regular(
+                target_files, "", entry_replace_str, entry_target_str
+            )
 
     except Exception as e:
         print(f"リネーム処理の実行エラー | {e}")

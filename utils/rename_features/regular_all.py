@@ -2,7 +2,8 @@ import unicodedata  # Unicodeデータベースへのアクセスを提供
 import shutil
 import os
 
-from move_dirs import move_dir
+# インポートエラー状態だが utils.files_move と正してしまうと ModuleNotFoundError が発生する
+from files_move import files_move
 
 
 # 同一拡張子のファイルが無いかチェックするプライベートメソッド
@@ -34,7 +35,7 @@ def regular_all_numbering(
     target_file_dir: list[str] | None = None,
     rename_files: list[str] | None = None,
     replace_str: str | None = None,
-    has_multi_dirs_filedir: bool | None = None,
+    is_mode_dir_move: bool | None = None,
 ) -> None:
     if rename_files is None:
         return
@@ -57,9 +58,9 @@ def regular_all_numbering(
         print(f"{normalized_path} -> {new_name}")
         os.rename(normalized_path, new_name)
 
-        # フォルダ移動処理が有効の場合は以下の処理に進む
-        if has_multi_dirs_filedir:
-            move_dir(target_file_dir)
+        if is_mode_dir_move and target_file_dir is not None:
+            move_dirname = target_file_dir[0]
+            files_move(move_dirname)
 
 
 # all：ナンバリング無しver
@@ -67,7 +68,7 @@ def regular_all(
     target_file_dir: list[str] | None = None,
     rename_files: list[str] | None = None,
     replace_str: str | None = None,
-    has_multi_dirs_filedir: bool | None = None,
+    is_mode_dir_move: bool | None = None,
 ) -> None:
     if rename_files is None:
         return
@@ -91,9 +92,9 @@ def regular_all(
         print(f"{normalized_path} -> {new_name}")
         os.rename(normalized_path, new_name)
 
-        # フォルダ移動処理が有効の場合は以下の処理に進む
-        if has_multi_dirs_filedir:
-            move_dir(target_file_dir)
+        if is_mode_dir_move and target_file_dir is not None:
+            move_dirname = target_file_dir[0]
+            files_move(move_dirname)
 
 
 if __name__ == "__main__":

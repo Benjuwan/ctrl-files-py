@@ -2,7 +2,8 @@ import unicodedata  # Unicodeデータベースへのアクセスを提供
 import shutil
 import os
 
-from move_dirs import move_dir
+# インポートエラー状態だが utils.files_move と正してしまうと ModuleNotFoundError が発生する
+from files_move import files_move
 
 
 # part：ナンバリング有りver
@@ -12,7 +13,7 @@ def regular_part_numbering(
     target_file_dir: list[str] | None = None,
     rename_files: list[str] | None = None,
     replace_str: str | None = None,
-    has_multi_dirs_filedir: bool | None = None,
+    is_mode_dir_move: bool | None = None,
 ) -> None:
     if rename_files is None or replace_str is None or target_str is None:
         return
@@ -54,9 +55,9 @@ def regular_part_numbering(
         print(f"{normalized_path} -> {new_name}")
         os.rename(normalized_path, new_name)
 
-        # フォルダ移動処理が有効の場合は以下の処理に進む
-        if has_multi_dirs_filedir:
-            move_dir(target_file_dir, replace_result_str)
+        if is_mode_dir_move and target_file_dir is not None:
+            move_dirname = target_file_dir[0]
+            files_move(move_dirname, replace_result_str)
 
 
 # part：ナンバリング無しver
@@ -65,7 +66,7 @@ def regular_part(
     target_file_dir: list[str] | None = None,
     rename_files: list[str] | None = None,
     replace_str: str | None = None,
-    has_multi_dirs_filedir: bool | None = None,
+    is_mode_dir_move: bool | None = None,
 ) -> None:
     if rename_files is None or replace_str is None:
         return
@@ -88,9 +89,9 @@ def regular_part(
             print(f"{normalized_path} -> {adjust_filename}")
             os.rename(normalized_path, adjust_filename)
 
-            # フォルダ移動処理が有効の場合は以下の処理に進む
-            if has_multi_dirs_filedir:
-                move_dir(target_file_dir, replace_result_str)
+            if is_mode_dir_move and target_file_dir is not None:
+                move_dirname = target_file_dir[0]
+                files_move(move_dirname, replace_result_str)
 
 
 if __name__ == "__main__":

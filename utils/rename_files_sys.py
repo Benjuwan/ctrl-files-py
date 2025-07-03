@@ -7,41 +7,9 @@ from rename_file_act_add import rename_file_act_add
 
 
 # リネーム処理のコア機能部分
-def rename_files_sys(
-    rename_files_dir: list[str] | None = None,
-    entry_replace_str: str | None = None,
-    entry_target_str: str | None = None,
-) -> None:
-    """
-    sys.argv[0]  # プログラム名
-    sys.argv[1]  # 第一引数：モード（ all, part, add_begin, add_end ）
-    """
-    # ----- rename_files.py（main.py）経由の処理ルート（※部分置換処理）
-    if rename_files_dir is not None:
-        if len(rename_files_dir) == 0:
-            sys.exit("処理対象フォルダまたはファイルが存在しないようです")
-
-        replace_str = (
-            entry_replace_str
-            if isinstance(entry_replace_str, str)
-            else input(f"{rename_files_dir}フォルダ内の全ファイル名を入力文字で置換：")
-        )
-
-        target_str = (
-            entry_target_str
-            if isinstance(entry_target_str, str)
-            else input(
-                f"{rename_files_dir}フォルダ内の全ファイル名の置換対象となる文字列を入力："
-            )
-        )
-
-        rename_file_act_regular(rename_files_dir, "", replace_str, target_str)
-        return
-
-    # ----- rename_files_sys.py 単体実行の処理ルート
+def rename_files_sys() -> None:
     try:
-        # 処理対象ディレクトリパス
-        # ※`../file/rename`というパス文字列として正しく認識してもらうために os.path.join で文字列結合
+        # `../file/rename`というパス文字列として正しく認識してもらうために os.path.join で文字列結合
         file_dir = os.path.join("..", "file", "rename")
         target_files = glob.glob(file_dir)
 
