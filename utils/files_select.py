@@ -10,7 +10,7 @@ def files_select(
     entry_replace_str: str | None = None,
     entry_target_str: str | None = None,
     mode: str = "files_select",
-) -> None:
+) -> list[str] | None:
     if entry_replace_str is None:
         entry_replace_str = input("1. リネーム前の対象文字列を入力：")
         check_entry_count("リネーム前の対象文字列", entry_replace_str)
@@ -47,14 +47,20 @@ def files_select(
                 f"`files_select` | ファイル名に「{entry_replace_str}」を含んだ「{extends}」拡張子ファイルは存在しません"
             )
 
+        # 「モード：フォルダ移動 + ファイル選択 + リネーム」の場合、拡張子でのフィルター済みイテラブルを返す
+        if mode == "all":
+            return target_files
+
         # target_files（拡張子ファイルでフィルター済み）を渡して、部分置換モードで処理を進める
         rename_file_act_regular(
             target_files, "", entry_replace_str, entry_target_str, mode
         )
 
+        return None
+
     except Exception as e:
         print(f"処理対象ファイルを選択する処理実行エラー | {e}")
-        return
+        return None
 
 
 if __name__ == "__main__":

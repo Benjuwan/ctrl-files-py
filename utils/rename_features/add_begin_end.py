@@ -12,7 +12,8 @@ def add_begin_end_numbering(
     target_file_dir: list[str] | None = None,
     rename_files: list[str] | None = None,
     replace_str: str | None = None,
-    is_mode_dir_move: bool | None = None,
+    is_begin: bool | None = None,
+    run_move_dir: bool | None = None,
 ) -> None:
     if rename_files is None:
         return
@@ -29,16 +30,26 @@ def add_begin_end_numbering(
         target_filename = os.path.basename(os.path.splitext(normalized_path)[0])
         extend = os.path.splitext(normalized_path)[1]
 
-        new_name = os.path.join(
-            dir_name,
+        add_begin: str = (
             f"{i}-{replace_str}-{target_filename}{extend}"
             if numbering == "y"
-            else f"{target_filename}-{replace_str}-{i}{extend}",
+            else f"{replace_str}-{i}-{target_filename}{extend}"
+        )
+
+        add_end: str = (
+            f"{target_filename}-{i}-{replace_str}{extend}"
+            if numbering == "y"
+            else f"{target_filename}-{replace_str}-{i}{extend}"
+        )
+
+        new_name = os.path.join(
+            dir_name,
+            add_begin if is_begin else add_end,
         )
         print(f"{normalized_path} -> {new_name}")
         os.rename(normalized_path, new_name)
 
-        if is_mode_dir_move and target_file_dir is not None:
+        if run_move_dir and target_file_dir is not None:
             move_dirname = target_file_dir[0]
             files_move(move_dirname)
 
@@ -49,7 +60,7 @@ def add_begin_end(
     rename_files: list[str] | None = None,
     replace_str: str | None = None,
     is_begin: bool | None = None,
-    is_mode_dir_move: bool | None = None,
+    run_move_dir: bool | None = None,
 ) -> None:
     if rename_files is None:
         return
@@ -72,7 +83,7 @@ def add_begin_end(
         print(f"{normalized_path} -> {new_name}")
         os.rename(normalized_path, new_name)
 
-        if is_mode_dir_move and target_file_dir is not None:
+        if run_move_dir and target_file_dir is not None:
             move_dirname = target_file_dir[0]
             files_move(move_dirname)
 

@@ -37,10 +37,24 @@ def rename_files(mode: str = "") -> None:
 
     try:
         if mode == "all":
-            check_and_create_move_dir(entry_replace_str, entry_target_str, mode)
-            files_select(entry_replace_str, entry_target_str, mode)
+            file_dir_path: str | None = check_and_create_move_dir(
+                entry_replace_str, entry_target_str, mode
+            )
+
+            filtered_extend_files: list[str] | None = files_select(
+                entry_replace_str, entry_target_str, mode
+            )
+
+            if isinstance(file_dir_path, str) and isinstance(
+                filtered_extend_files, list
+            ):
+                # 拡張子でのフィルター済みイテラブルをセット
+                target_files = filtered_extend_files
+                # 移動先フォルダパスをリストの先頭に追加
+                target_files.insert(0, file_dir_path)
+
             rename_file_act_regular(
-                target_files, "", entry_replace_str, entry_target_str
+                target_files, "", entry_replace_str, entry_target_str, mode
             )
         elif mode == "dir_move":
             check_and_create_move_dir(entry_replace_str, entry_target_str, mode)
