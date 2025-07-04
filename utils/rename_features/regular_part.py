@@ -13,7 +13,7 @@ def regular_part_numbering(
     target_file_dir: list[str] | None = None,
     rename_files: list[str] | None = None,
     replace_str: str | None = None,
-    is_mode_dir_move: bool | None = None,
+    run_move_dir: bool | None = None,
 ) -> None:
     if rename_files is None or replace_str is None or target_str is None:
         return
@@ -55,7 +55,7 @@ def regular_part_numbering(
         print(f"{normalized_path} -> {new_name}")
         os.rename(normalized_path, new_name)
 
-        if is_mode_dir_move and target_file_dir is not None:
+        if run_move_dir and target_file_dir is not None:
             move_dirname = target_file_dir[0]
             files_move(move_dirname, replace_result_str)
 
@@ -66,7 +66,7 @@ def regular_part(
     target_file_dir: list[str] | None = None,
     rename_files: list[str] | None = None,
     replace_str: str | None = None,
-    is_mode_dir_move: bool | None = None,
+    run_move_dir: bool | None = None,
 ) -> None:
     if rename_files is None or replace_str is None:
         return
@@ -89,7 +89,7 @@ def regular_part(
             print(f"{normalized_path} -> {adjust_filename}")
             os.rename(normalized_path, adjust_filename)
 
-            if is_mode_dir_move and target_file_dir is not None:
+            if run_move_dir and target_file_dir is not None:
                 move_dirname = target_file_dir[0]
                 files_move(move_dirname, replace_result_str)
 

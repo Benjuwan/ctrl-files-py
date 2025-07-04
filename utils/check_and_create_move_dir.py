@@ -14,7 +14,7 @@ def check_and_create_move_dir(
     entry_replace_str: str | None = None,
     entry_target_str: str | None = None,
     mode: str = "dir_move",
-) -> None:
+) -> str | None:
     from rename_file_act_regular import rename_file_act_regular
 
     if entry_replace_str is None:
@@ -31,7 +31,6 @@ def check_and_create_move_dir(
 
         # `../file/{dirname}`というパス文字列として正しく認識してもらうために os.path.join で文字列結合する
         file_dir = os.path.join("..", "file", dirname)
-
         target_files = glob.glob(file_dir, recursive=True)
 
         if len(target_files) == 0:
@@ -46,14 +45,20 @@ def check_and_create_move_dir(
 
             sys.exit(f"「{dirname}」を作成したので再実行してください")
 
+        # 「モード：フォルダ移動 + ファイル選択 + リネーム」の場合、移動先フォルダパスを返す
+        if mode == "all":
+            return file_dir
+
         # target_files（`../file/{dirname}`内のデータイテラブル）を渡して、部分置換モードで処理を進める
         rename_file_act_regular(
             target_files, "", entry_replace_str, entry_target_str, mode
         )
 
+        return None
+
     except Exception as e:
         print(f"移動先フォルダのチェック及び作成処理における実行エラー | {e}")
-        return
+        return None
 
 
 if __name__ == "__main__":
