@@ -1,10 +1,12 @@
 import glob
 import os
+import sys
 
 from entry_validation import check_entry_count
 from check_and_create_move_dir import check_and_create_move_dir
 from files_select import files_select
 from rename_file_act_regular import rename_file_act_regular
+from check_max_depth_dir import get_max_depth_dirpath_files
 
 
 def rename_files(mode: str = "") -> None:
@@ -23,6 +25,20 @@ def rename_files(mode: str = "") -> None:
         # サブディレクトリも処理対象（＝指定したディレクトリ全体が処理対象）
         recursive=True,
     )
+
+    # 最深階層まで検出するようにパス指定した（調整された）イテラブル
+    max_depth_dirpath_files = get_max_depth_dirpath_files(file_dir)
+
+    if max_depth_dirpath_files:
+        # リネーム前の対象文字列を含んだフォルダまたはファイルが存在するかをチェックする
+        is_check_exist_target_file = all(
+            [file.count(entry_replace_str) == 0 for file in max_depth_dirpath_files]
+        )
+
+    if is_check_exist_target_file:
+        sys.exit(
+            f"現状「{entry_replace_str}」というフォルダまたはファイル名のデータは存在しないようです"
+        )
 
     if len(target_files) == 0:
         print(
