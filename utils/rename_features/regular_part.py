@@ -18,6 +18,9 @@ def regular_part_numbering(
     if rename_files is None or replace_str is None or target_str is None:
         return
 
+    # 処理対象ファイルの連番用カウンター
+    target_file_counter = 0
+
     for i, file in enumerate(rename_files, 1):
         # 文字列を正規化（NFKCで合成済み文字として扱う）
         normalized_path = unicodedata.normalize("NFKC", file)
@@ -26,6 +29,9 @@ def regular_part_numbering(
         if normalized_path.count(replace_str) == 0:
             print(f"{i} --- {normalized_path}は置換対象外です")
             continue
+
+        # 連番用カウンターに加算
+        target_file_counter = target_file_counter + 1
 
         # バックアップを作成（.bak：バックアップファイルを意味する拡張子）
         shutil.copy2(normalized_path, normalized_path + ".bak")
@@ -47,9 +53,9 @@ def regular_part_numbering(
         # ファイル名の変更（`dir_name`と組み合わせてフルパス生成）
         new_name = os.path.join(
             dir_name,
-            f"{i}-{name_without_ext}{extend}"
+            f"{target_file_counter}-{name_without_ext}{extend}"
             if numbering == "y"
-            else f"{name_without_ext}-{i}{extend}",
+            else f"{name_without_ext}-{target_file_counter}{extend}",
         )
 
         print(f"{normalized_path} -> {new_name}")
