@@ -60,7 +60,7 @@ python rename_files_sys.py <コマンド>
             rename_files()
 
     except Exception as e:
-        print(f"コアモジュール main.py での処理実行エラー | {e}")
+        print(f"コアモジュールでの処理実行エラー | `main.py` ： {e}")
         return
 
 

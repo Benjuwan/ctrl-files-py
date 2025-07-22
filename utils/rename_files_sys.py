@@ -65,7 +65,9 @@ def rename_files_sys() -> None:
             rename_file_act_add(target_files, numbering, add_end_str, is_begin=False)
 
     except Exception as e:
-        print(f"リネーム処理のコア機能部分`rename_files_sys`での処理実行エラー | {e}")
+        print(
+            f"リネーム処理のコア機能部分での処理実行エラー | `rename_files_sys.py` ： {e}"
+        )
         return
 
 

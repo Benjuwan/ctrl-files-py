@@ -8,25 +8,32 @@ from files_move import files_move
 
 # 同一拡張子のファイルが無いかチェックするプライベートメソッド
 def _check_duplicated_extends(filelist: list[str]) -> bool:
-    extends = []
-    duplicated_extends_count = 0
+    try:
+        extends = []
+        duplicated_extends_count = 0
 
-    for file in filelist:
-        # 文字列を正規化（NFKCで合成済み文字として扱う）
-        normalized_path = unicodedata.normalize("NFKC", file)
+        for file in filelist:
+            # 文字列を正規化（NFKCで合成済み文字として扱う）
+            normalized_path = unicodedata.normalize("NFKC", file)
 
-        # os.path.splitext で確実に拡張子を取得する
-        extend = os.path.splitext(normalized_path)[1]
-        extends.append(extend)
+            # os.path.splitext で確実に拡張子を取得する
+            extend = os.path.splitext(normalized_path)[1]
+            extends.append(extend)
 
-        for ext in extends:
-            if normalized_path.count(ext):
-                duplicated_extends_count += 1
+            for ext in extends:
+                if normalized_path.count(ext):
+                    duplicated_extends_count += 1
 
-    if duplicated_extends_count > 0:
-        return True
+        if duplicated_extends_count > 0:
+            return True
 
-    return False
+        return False
+
+    except Exception as e:
+        print(
+            f"同一拡張子のファイルが無いかチェック時にエラーが発生しました | `regular_all.py` ： {e}"
+        )
+        return False
 
 
 # all：ナンバリング有りver
@@ -37,30 +44,35 @@ def regular_all_numbering(
     replace_str: str | None = None,
     run_move_dir: bool | None = None,
 ) -> None:
-    if rename_files is None:
+    try:
+        if rename_files is None:
+            return
+
+        for i, file in enumerate(rename_files, 1):
+            normalized_path = unicodedata.normalize("NFKC", file)
+
+            shutil.copy2(normalized_path, normalized_path + ".bak")
+
+            dir_name = os.path.dirname(normalized_path)
+            extend = os.path.splitext(normalized_path)[1]
+
+            new_name = os.path.join(
+                dir_name,
+                f"{i}-{replace_str}{extend}"
+                if numbering == "y"
+                else f"{replace_str}-{i}{extend}",
+            )
+
+            print(f"{normalized_path} -> {new_name}")
+            os.rename(normalized_path, new_name)
+
+            if run_move_dir and target_file_dir is not None:
+                move_dirname = target_file_dir[0]
+                files_move(move_dirname)
+
+    except Exception as e:
+        print(f"ナンバリング + 全置換処理時にエラーが発生 | `regular_all.py` ： {e}")
         return
-
-    for i, file in enumerate(rename_files, 1):
-        normalized_path = unicodedata.normalize("NFKC", file)
-
-        shutil.copy2(normalized_path, normalized_path + ".bak")
-
-        dir_name = os.path.dirname(normalized_path)
-        extend = os.path.splitext(normalized_path)[1]
-
-        new_name = os.path.join(
-            dir_name,
-            f"{i}-{replace_str}{extend}"
-            if numbering == "y"
-            else f"{replace_str}-{i}{extend}",
-        )
-
-        print(f"{normalized_path} -> {new_name}")
-        os.rename(normalized_path, new_name)
-
-        if run_move_dir and target_file_dir is not None:
-            move_dirname = target_file_dir[0]
-            files_move(move_dirname)
 
 
 # all：ナンバリング無しver
@@ -70,31 +82,36 @@ def regular_all(
     replace_str: str | None = None,
     run_move_dir: bool | None = None,
 ) -> None:
-    if rename_files is None:
-        return
-
-    for file in rename_files:
-        normalized_path = unicodedata.normalize("NFKC", file)
-
-        # 同一拡張子のファイルが無いかチェック
-        is_check_duplicated_extends = _check_duplicated_extends(rename_files)
-        if is_check_duplicated_extends:
-            print("同じ拡張子のファイルがあります。重複ファイルは作成不可")
+    try:
+        if rename_files is None:
             return
 
-        shutil.copy2(normalized_path, normalized_path + ".bak")
+        for file in rename_files:
+            normalized_path = unicodedata.normalize("NFKC", file)
 
-        dir_name = os.path.dirname(normalized_path)
-        extend = os.path.splitext(normalized_path)[1]
+            # 同一拡張子のファイルが無いかチェック
+            is_check_duplicated_extends = _check_duplicated_extends(rename_files)
+            if is_check_duplicated_extends:
+                print("同じ拡張子のファイルがあります。重複ファイルは作成不可")
+                return
 
-        new_name = os.path.join(dir_name, f"{replace_str}{extend}")
+            shutil.copy2(normalized_path, normalized_path + ".bak")
 
-        print(f"{normalized_path} -> {new_name}")
-        os.rename(normalized_path, new_name)
+            dir_name = os.path.dirname(normalized_path)
+            extend = os.path.splitext(normalized_path)[1]
 
-        if run_move_dir and target_file_dir is not None:
-            move_dirname = target_file_dir[0]
-            files_move(move_dirname)
+            new_name = os.path.join(dir_name, f"{replace_str}{extend}")
+
+            print(f"{normalized_path} -> {new_name}")
+            os.rename(normalized_path, new_name)
+
+            if run_move_dir and target_file_dir is not None:
+                move_dirname = target_file_dir[0]
+                files_move(move_dirname)
+
+    except Exception as e:
+        print(f"全置換処理時にエラーが発生 | `regular_all.py` ： {e}")
+        return
 
 
 if __name__ == "__main__":

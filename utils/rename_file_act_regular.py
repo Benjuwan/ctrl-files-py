@@ -17,13 +17,13 @@ def rename_file_act_regular(
     target_str: str | None = None,
     mode: str = "",
 ) -> None:
-    if target_file_dir is None:
-        print(
-            "処理対象フォルダが指定されていないようです\n処理する場合は rename_files_sys.py を通じて実行してください "
-        )
-        return
-
     try:
+        if target_file_dir is None:
+            print(
+                "処理対象フォルダが指定されていないようです\n処理する場合は rename_files_sys.py を通じて実行してください "
+            )
+            return
+
         is_mode_all: bool = mode == "all"
         is_files_select: bool = mode == "files_select"
         is_mode_dir_move: bool = mode == "dir_move"
@@ -121,7 +121,7 @@ def rename_file_act_regular(
         )
 
     except Exception as e:
-        print(f"ファイル名の置換処理実行エラー | {e}")
+        print(f"ファイル名の置換処理実行エラー | `rename_file_act_regular.py` ： {e}")
         return
 
 
