@@ -5,6 +5,9 @@ import os
 # インポートエラー状態だが utils.files_move と正してしまうと ModuleNotFoundError が発生する
 from files_move import files_move
 
+# インポートエラー状態だが rename_features.prefix_today_firstline と記述しないと ModuleNotFoundError が発生する
+from rename_features.prefix_today_firstline import prefix_today_firstline
+
 
 # ナンバリング有りver
 def add_begin_end_numbering(
@@ -17,6 +20,8 @@ def add_begin_end_numbering(
 ) -> None:
     if rename_files is None:
         return
+
+    prefix_today: str | None = prefix_today_firstline()
 
     for i, file in enumerate(rename_files, 1):
         # 文字列を正規化（NFKCで合成済み文字として扱う）
@@ -31,15 +36,15 @@ def add_begin_end_numbering(
         extend = os.path.splitext(normalized_path)[1]
 
         add_begin: str = (
-            f"{i}-{replace_str}-{target_filename}{extend}"
+            f"{prefix_today}{i}-{replace_str}-{target_filename}{extend}"
             if numbering == "y"
-            else f"{replace_str}-{i}-{target_filename}{extend}"
+            else f"{prefix_today}{replace_str}-{i}-{target_filename}{extend}"
         )
 
         add_end: str = (
-            f"{target_filename}-{i}-{replace_str}{extend}"
+            f"{prefix_today}{target_filename}-{i}-{replace_str}{extend}"
             if numbering == "y"
-            else f"{target_filename}-{replace_str}-{i}{extend}"
+            else f"{prefix_today}{target_filename}-{replace_str}-{i}{extend}"
         )
 
         new_name = os.path.join(
@@ -65,6 +70,8 @@ def add_begin_end(
     if rename_files is None:
         return
 
+    prefix_today: str | None = prefix_today_firstline()
+
     for file in rename_files:
         normalized_path = unicodedata.normalize("NFKC", file)
 
@@ -76,9 +83,9 @@ def add_begin_end(
 
         new_name = os.path.join(
             dir_name,
-            f"{replace_str}-{target_filename}{extend}"
+            f"{prefix_today}{replace_str}-{target_filename}{extend}"
             if is_begin
-            else f"{target_filename}-{replace_str}{extend}",
+            else f"{prefix_today}{target_filename}-{replace_str}{extend}",
         )
         print(f"{normalized_path} -> {new_name}")
         os.rename(normalized_path, new_name)
