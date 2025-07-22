@@ -3,7 +3,9 @@ import glob
 import shutil
 
 
-def files_move(move_dirname: str = "dist", replace_result_str: str | None = None):
+def files_move(
+    move_dirname: str = "dist", replace_result_str: str | None = None
+) -> None:
     try:
         # `../file/*： fileフォルダ内の全ファイル`
         file_dir_path = os.path.join("../", "file", "*")
@@ -25,7 +27,7 @@ def files_move(move_dirname: str = "dist", replace_result_str: str | None = None
             shutil.copy2(file, move_dirname)
 
     except Exception as e:
-        print(f"フォルダ移動の処理実行エラー | {e}")
+        print(f"フォルダ移動の処理実行エラー | `files_move.py` ： {e}")
         return
 
 

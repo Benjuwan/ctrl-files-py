@@ -3,6 +3,8 @@ import glob
 import sys
 
 from entry_validation import check_entry_count
+from rename_file_act_regular import rename_file_act_regular
+
 
 """
 - Notice
@@ -15,17 +17,15 @@ def check_and_create_move_dir(
     entry_target_str: str | None = None,
     mode: str = "dir_move",
 ) -> str | None:
-    from rename_file_act_regular import rename_file_act_regular
-
-    if entry_replace_str is None:
-        entry_replace_str = input("1. リネーム前の対象文字列を入力：")
-        check_entry_count("リネーム前の対象文字列", entry_replace_str)
-
-    if entry_target_str is None:
-        entry_target_str = input("2. リネーム名を入力：")
-        check_entry_count("リネーム名", entry_target_str)
-
     try:
+        if entry_replace_str is None:
+            entry_replace_str = input("1. リネーム前の対象文字列を入力：")
+            check_entry_count("リネーム前の対象文字列", entry_replace_str)
+
+        if entry_target_str is None:
+            entry_target_str = input("2. リネーム名を入力：")
+            check_entry_count("リネーム名", entry_target_str)
+
         dirname = input("移動先フォルダ名を入力：")
         check_entry_count("移動先フォルダ名", dirname)
 
@@ -57,7 +57,9 @@ def check_and_create_move_dir(
         return None
 
     except Exception as e:
-        print(f"移動先フォルダのチェック及び作成処理における実行エラー | {e}")
+        print(
+            f"移動先フォルダのチェック及び作成処理における実行エラー | `check_and_create_move_dir.py` ： {e}"
+        )
         return None
 
 

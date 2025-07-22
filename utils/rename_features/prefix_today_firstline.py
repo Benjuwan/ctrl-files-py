@@ -21,7 +21,9 @@ def prefix_today_firstline() -> str | None:
         return prefix_today
 
     except Exception as e:
-        print(f"ファイル名先頭に当日表記する処理時にエラー発生 | {e}")
+        print(
+            f"ファイル名先頭に当日表記する処理時にエラー発生 | `prefix_today_firstline.py` ： {e}"
+        )
         return None
 
 
