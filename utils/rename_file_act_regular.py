@@ -46,7 +46,7 @@ def rename_file_act_regular(
         )
 
         # 処理対象ディレクトリ内の全てのファイルリスト（以下の内包表記からうまれるイテラブル）
-        rename_files = [
+        rename_files: list[str] = [
             f  # 式：ループ変数fをそのまま取得
             for f  # ループ変数：glob結果の各要素（target_file_dirフォルダ内の全データ）を順次取得
             # アンパック（*イテラブル）： JavaScriptのスプレッド構文（...）と同じようにリストやタプルの中身を展開して渡す仕組み

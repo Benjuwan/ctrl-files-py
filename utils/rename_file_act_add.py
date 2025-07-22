@@ -32,7 +32,7 @@ def rename_file_act_add(
         )
 
         # 処理対象ディレクトリ内の全てのファイルリスト（以下の内包表記からうまれるイテラブル）
-        rename_files = [
+        rename_files: list[str] = [
             f
             for f in glob.glob(os.path.join(*target_rename_dir, "*"))
             if os.path.isfile(f)
